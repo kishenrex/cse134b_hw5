@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Me</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="assets/scripts/theme-blocker.js"></script>
+</head>
+<body id="form-page">
+
+    <button id="theme-toggle">Toggle Dark Mode</button>
+    <noscript>
+        <p style="text-align: center; color: #d9534f; font-weight: 600;">
+            Note: Theme toggling requires JavaScript to be enabled.
+        </p>
+    </noscript>
+
+    <form action="https://httpbin.org/post" method="POST" novalidate>
+        
+        <h2>Contact Us</h2>
+        <p>Please fill out the form below to get in touch.</p>
+
+        <div>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="user_name" 
+                   required 
+                   minlength="2" 
+                   maxlength="50" 
+                   placeholder=" ">
+        </div>
+
+        <div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="user_email" 
+                   required 
+                   maxlength="100" 
+                   placeholder=" ">
+        </div>
+
+        <div>
+            <label for="subject">Subject:</label>
+            <input type="text" id="subject" name="subject" 
+                   maxlength="100" 
+                   pattern="[a-zA-Z0-9 .,!?'\-]+"
+                   title="Please use only letters, numbers, and basic punctuation."
+                   placeholder=" ">
+        </div>
+        <div>
+            <label for="comments">Comments:</label>
+            <textarea id="comments" name="comments" rows="5" 
+                      required 
+                      minlength="10" 
+                      maxlength="200" 
+                      placeholder=" "></textarea>
+            <div class="char-counter">
+                <span id="char-count">200</span> characters remaining
+            </div>
+        </div>
+
+        <input type="hidden" name="possible_bot" value="true">
+
+        <button type="submit">Send Message</button>
+
+        <output for="name email subject comments" id="error-output"></output>
+        <output for="name email subject comments" id="info-output"></output>
+
+    </form>
+
+    <script src="assets/scripts/theme-toggle.js"></script>
+
+    <script>
+        const form = document.querySelector('form');
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const subjectInput = document.getElementById('subject');
+        const commentsInput = document.getElementById('comments');
+        const errorOutput = document.getElementById('error-output');
+        const infoOutput = document.getElementById('info-output');
+        const charCountEl = document.getElementById('char-count');
+        const charCountWrapper = document.querySelector('.char-counter');
+        const submitButton = form.querySelector('button[type="submit"]');
+
+        let form_errors = [];
+        let errorTimer = null;
+
+        const commentsMax = commentsInput.maxLength;
+        charCountEl.textContent = commentsMax;
+
+        commentsInput.addEventListener('input', () => {
+            const currentLength = commentsInput.value.length;
+            const remaining = commentsMax - currentLength;
+            charCountEl.textContent = remaining;
+            charCountEl.classList.remove('warning', 'error');
+            if (remaining <= 0) {
+                charCountEl.classList.add('error');
+            } else if (remaining <= 20) {
+                charCountEl.classList.add('warning');
+            }
+        });
+
+        const subjectPattern = new RegExp(`^${subjectInput.pattern}$`);
+
+        subjectInput.addEventListener('input', () => {
+            const value = subjectInput.value;
+            if (value.length > 0 && !subjectPattern.test(value)) {
+                subjectInput.value = value.slice(0, -1);
+                flashField(subjectInput);
+                showTemporaryError("Disallowed character in Subject. Please use only letters, numbers, and basic punctuation.");
+            }
+        });
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            
+            const current_errors = [];
+
+            clearAllErrorMessages();
+
+            validateName(current_errors);
+            validateEmail(current_errors);
+            validateSubject(current_errors);
+            validateComments(current_errors);
+            
+            
+            if (current_errors.length > 0) {
+                displayErrors(current_errors);
+                form_errors = current_errors;
+                
+            } else {
+                const errorInput = document.createElement('input');
+                errorInput.type = 'hidden';
+                errorInput.name = 'form-errors';
+                errorInput.value = JSON.stringify(form_errors);
+                form.appendChild(errorInput);
+
+                form_errors = [];
+                form.submit();
+            }
+        });
+        
+        function validateName(errorsArray) {
+            const input = nameInput;
+            input.setCustomValidity(""); 
+            
+            if (input.validity.valueMissing) {
+                const errorMsg = "Name is required.";
+                input.setCustomValidity(errorMsg); 
+                errorsArray.push({ field: input.name, error: errorMsg });
+            } else if (input.validity.tooShort) {
+                const errorMsg = `Name must be at least ${input.minLength} characters.`;
+                input.setCustomValidity(errorMsg);
+                errorsArray.push({ field: input.name, error: errorMsg, value: input.value });
+            }
+        }
+        
+        function validateEmail(errorsArray) {
+            const input = emailInput;
+            input.setCustomValidity("");
+            
+            if (input.validity.valueMissing) {
+                const errorMsg = "Email is required.";
+                input.setCustomValidity(errorMsg);
+                errorsArray.push({ field: input.name, error: errorMsg });
+            } else if (input.validity.typeMismatch) {
+                const errorMsg = "Please enter a valid email address (e.g., user@example.com).";
+                input.setCustomValidity(errorMsg);
+                errorsArray.push({ field: input.name, error: errorMsg, value: input.value });
+            }
+        }
+
+        function validateSubject(errorsArray) {
+            const input = subjectInput;
+            input.setCustomValidity("");
+
+            if (input.validity.patternMismatch) {
+                const errorMsg = "Subject contains disallowed characters.";
+                input.setCustomValidity(errorMsg);
+                errorsArray.push({ field: input.name, error: errorMsg, value: input.value });
+            }
+        }
+        
+        function validateComments(errorsArray) {
+            const input = commentsInput;
+            input.setCustomValidity("");
+            
+            if (input.validity.valueMissing) {
+                const errorMsg = "Comments are required.";
+                input.setCustomValidity(errorMsg);
+                errorsArray.push({ field: input.name, error: errorMsg });
+            } else if (input.validity.tooShort) {
+                const errorMsg = `Comments must be at least ${input.minLength} characters.`;
+                input.setCustomValidity(errorMsg);
+                errorsArray.push({ field: input.name, error: errorMsg, value: input.value });
+            } else if (input.validity.rangeOverflow) {
+                const errorMsg = `Comments cannot exceed ${input.maxLength} characters.`;
+                input.setCustomValidity(errorMsg);
+                errorsArray.push({ field: input.name, error: errorMsg, value: input.value });
+            }
+        }
+
+        function showTemporaryError(message) {
+            if (errorTimer) clearTimeout(errorTimer);
+            errorOutput.textContent = message;
+            errorOutput.style.display = 'block';
+            errorTimer = setTimeout(() => {
+                errorOutput.textContent = '';
+                errorOutput.style.display = 'none';
+                errorTimer = null;
+            }, 3000);
+        }
+        
+        function flashField(inputElement) {
+            inputElement.classList.add('flash-error');
+            setTimeout(() => {
+                inputElement.classList.remove('flash-error');
+            }, 300);
+        }
+        
+        function displayErrors(errors) {
+            const errorList = errors.map(err => `<li><strong>${err.field}:</strong> ${err.error}</li>`).join('');
+            errorOutput.innerHTML = `<strong>Please fix the following issues:</strong><ul>${errorList}</ul>`;
+            errorOutput.style.display = 'block';
+        }
+        
+        function showInfoMessage(message) {
+            infoOutput.textContent = message;
+            infoOutput.style.display = 'block';
+        }
+        
+        function clearAllErrorMessages() {
+            errorOutput.innerHTML = '';
+            errorOutput.style.display = 'none';
+            infoOutput.innerHTML = '';
+            infoOutput.style.display = 'none';
+            [nameInput, emailInput, subjectInput, commentsInput].forEach(input => {
+                input.setCustomValidity("");
+            });
+        }
+    </script>
+</body>
+</html>
