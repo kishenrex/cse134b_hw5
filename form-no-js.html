@@ -82,13 +82,25 @@
             transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        /* Style for when a user clicks into a field */
+        input:invalid:not(:placeholder-shown),
+        textarea:invalid:not(:placeholder-shown) {
+            border-color: #d9534f; /* Red */
+            background-color: #fdf2f2; /* Light red */
+        }
+        
+
+        input:valid:not(:placeholder-shown),
+        textarea:valid:not(:placeholder-shown) {
+            border-color: #28a745; /* Green */
+        }
+
         input[type="text"]:focus,
         input[type="email"]:focus,
         textarea:focus {
             outline: none;
             border-color: #007BFF;
-            box-shadow: 0 0 0 3px rgba(0,123,255,0.2);
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.2); /* Soft blue glow */
+            background-color: #fff; /* Ensure background is white on focus */
         }
 
         textarea {
@@ -142,24 +154,43 @@
         <h2>Contact Me</h2>
         <p>Please fill out the form below to get in touch.</p>
 
+        <!-- Name Field -->
         <div>
             <label for="name">Name:</label>
-            <input type="text" id="name" name="user_name" required>
+            <input type="text" id="name" name="user_name" 
+                   required 
+                   minlength="2" 
+                   maxlength="50" 
+                   placeholder=" ">
         </div>
 
+        <!-- Email Field -->
         <div>
             <label for="email">Email:</label>
-            <input type="email" id="email" name="user_email" required>
+            <input type="email" id="email" name="user_email" 
+                   required 
+                   maxlength="100" 
+                   placeholder=" ">
         </div>
 
+        <!-- Subject Field  -->
         <div>
             <label for="subject">Subject:</label>
-            <input type="text" id="subject" name="subject">
+            <input type="text" id="subject" name="subject" 
+                   maxlength="100" 
+                   pattern="[a-zA-Z0-9 .,!?'\-]+"
+                   title="Please use only letters, numbers, and basic punctuation."
+                   placeholder=" ">
         </div>
 
+        <!-- Comments Field -->
         <div>
             <label for="comments">Comments:</label>
-            <textarea id="comments" name="comments" rows="5" required></textarea>
+            <textarea id="comments" name="comments" rows="5" 
+                      required 
+                      minlength="10" 
+                      maxlength="1000" 
+                      placeholder=" "></textarea>
         </div>
 
         <input type="hidden" name="possible_bot" value="true">
