@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="icon" href="/assets/images/favicon.ico">
     <script src="assets/scripts/theme-blocker.js"></script>
+    <script src="assets/scripts/ProjectCard.js" defer></script>
 </head>
 <body>
     <button id="theme-picker-btn">Customize Theme</button>
@@ -96,11 +97,26 @@
             <h2>Brief Summary:</h2>
             <p>I am a 4th year Computer Science major at UC San Diego. My interests are in web technologies</p>
         </section>
-        <project-card>
-            <h3>Featured Projects:</h3>
-            <p>Nightly - Sleep Tracking Web App</p>
-        </project-card>
+        <section class="projects-section">
+            <h2>Featured Projects</h2>
+            <div id="project-card-container" class="card-grid"></div>
+        </section>
     </main>
+
+    <template id="project-card-template">
+        <link rel="stylesheet" href="/assets/css/ProjectCard.css">
+        <article class="card">
+            <picture>
+                <img class="card__image" src="" alt="">
+            </picture>
+            <div class="card__content">
+                <h2 class="card__title"></h2>
+                <p class="card__description"></p>
+                <a href="#" class="card__link" target="_blank" rel="noopener noreferrer">Learn More &rarr;</a>
+            </div>
+        </article>
+    </template>
+
     <footer>
         <p>&copy; 2025 Kishen Thevandran</p>
         <div>

@@ -719,3 +719,16 @@ progress {
     margin: 0;
     padding-left: 1.25rem;
 }
+
+.projects-section {
+  margin-top: 2rem;
+}
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+}
+#form-page #error-output ul {
+    margin: 0;
+    padding-left: 1.25rem;
+}
